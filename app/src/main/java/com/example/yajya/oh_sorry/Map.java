@@ -2,21 +2,25 @@ package com.example.yajya.oh_sorry;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,18 +44,42 @@ public class Map extends AppCompatActivity implements MapView.MapViewEventListen
     static final String API_KEY = "072a8054349bc3dbbb29a2201c04a678";
     net.daum.mf.map.api.MapView mapView;
     LocationManager locationManager;
-    EditText mEditTextQuery;
-    Button mButtonSearch;
     HashMap<Integer, Item> mTagItemMap = new HashMap<Integer, Item>();
     double lat, lng;
+    int selectedMarker;
+    MyDBHandler dbHandler;
+    Cursor cursor;
+    Switch aSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+        selectedMarker = -2;
 
+        initDB();
+        init();
         loadGPS();
         loadMap();
+    }
+
+    public void init(){
+        aSwitch = (Switch)findViewById(R.id.showCustom);
+        aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked == true){
+                    showCustomPlace();
+                } else {
+                    mapView.removeAllPOIItems();
+                }
+            }
+        });
+    }
+
+    public void initDB(){
+        dbHandler = new MyDBHandler(getApplicationContext(), null, null, 1);
+        cursor = dbHandler.getQueryResult("select * from places");
     }
 
     public void btnList(View view) {
@@ -78,8 +106,7 @@ public class Map extends AppCompatActivity implements MapView.MapViewEventListen
                 Date date = new Date(now);
                 SimpleDateFormat sdfNow = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
                 String formatDate = sdfNow.format(date);
-                // Toast.makeText(getApplicationContext(),formatDate+" : "+lat+", "+lng,Toast.LENGTH_SHORT).show();
-                // 여기서 firebase에 위도,경도,현재시간을 넣으면 될 것 같다.
+                //Toast.makeText(getApplicationContext(),formatDate+" : "+lat+", "+lng,Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -108,8 +135,8 @@ public class Map extends AppCompatActivity implements MapView.MapViewEventListen
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 600000, 0, locationListener);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 600000, 0, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
     }
 
     public void loadMap() {
@@ -134,15 +161,18 @@ public class Map extends AppCompatActivity implements MapView.MapViewEventListen
         myMarker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
         mapView.addPOIItem(myMarker);
 
+        selectedMarker = -1;
     }
 
-    public void sarchLocation(View view) {
+    public void searchLocation(View view) {
         EditText searchLocationName = (EditText)findViewById(R.id.searchLocationName);
 
         String locationName = searchLocationName.getText().toString();
-        if(locationName == null | locationName.length() == 0){
+        if(locationName == null || locationName.length() == 0){
             Toast.makeText(getApplicationContext(), "검색어를 입력하세요.",Toast.LENGTH_SHORT).show();
             return;
+        } else {
+            Toast.makeText(getApplicationContext(), "검색중...",Toast.LENGTH_SHORT).show();
         }
 
         InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -167,6 +197,62 @@ public class Map extends AppCompatActivity implements MapView.MapViewEventListen
     }
 
     public void btnAdd(View view) {
+        int temp = cursor.getCount()+100;
+        final int count = temp;
+
+        cursor.moveToFirst();
+        if(selectedMarker>=-1) {
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.setMessage("Add?").setCancelable(false).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Item item = mTagItemMap.get(selectedMarker);
+                    Place place = new Place(count, item.title, item.latitude, item.longitude);
+
+                    dbHandler.addPlace(place);
+                    showCustomPlace();
+                }
+            }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+
+            AlertDialog dialog = alert.create();
+            dialog.show();
+        } else {
+            Toast.makeText(getApplicationContext(), "Search & Select Marker Please", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void showCustomPlace(){
+        mapView.removeAllPOIItems();
+        MapPointBounds mapPointBounds = new MapPointBounds();
+
+        cursor = dbHandler.getQueryResult("select * from places");
+        cursor.moveToFirst();
+        while(!cursor.isAfterLast()) {
+            MapPOIItem poiItem = new MapPOIItem();
+            String str = cursor.getString(1);
+            poiItem.setItemName(str);
+            int tag = cursor.getInt(0);
+            poiItem.setTag(tag);
+            MapPoint mapPoint = MapPoint.mapPointWithGeoCoord(cursor.getDouble(2), cursor.getDouble(3));
+            poiItem.setMapPoint(mapPoint);
+            mapPointBounds.add(mapPoint);
+            poiItem.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+            poiItem.setCustomImageResourceId(R.drawable.map_pin_blue);
+            poiItem.setSelectedMarkerType(MapPOIItem.MarkerType.CustomImage);
+            poiItem.setCustomSelectedImageResourceId(R.drawable.map_pin_red);
+            poiItem.setCustomImageAutoscale(false);
+            poiItem.setCustomImageAnchor(0.5f, 1.0f);
+
+            mapView.addPOIItem(poiItem);
+            cursor.moveToNext();
+        }
+
+        mapView.moveCamera(CameraUpdateFactory.newMapPointBounds(mapPointBounds));
     }
 
     class CustomCalloutBalloonAdapter implements CalloutBalloonAdapter {
@@ -254,19 +340,26 @@ public class Map extends AppCompatActivity implements MapView.MapViewEventListen
         StringBuilder sb = new StringBuilder();
         if(mapPOIItem.getTag()==-1){
             return;
+        } else if(mapPOIItem.getTag()>=100){
+            cursor = dbHandler.getQueryResult("select * from places where markertag = "+mapPOIItem.getTag());
+            cursor.moveToFirst();
+            if(!cursor.isAfterLast())
+                sb.append("title=").append(cursor.getString(1)).append("\n");
+        }else {
+            sb.append("title=").append(item.title).append("\n");
+            sb.append("imageUrl=").append(item.imageUrl).append("\n");
+            sb.append("address=").append(item.address).append("\n");
+            sb.append("newAddress=").append(item.newAddress).append("\n");
+            sb.append("zipcode=").append(item.zipcode).append("\n");
+            sb.append("phone=").append(item.phone).append("\n");
+            sb.append("category=").append(item.category).append("\n");
+            sb.append("longitude=").append(item.longitude).append("\n");
+            sb.append("latitude=").append(item.latitude).append("\n");
+            sb.append("distance=").append(item.distance).append("\n");
+            sb.append("direction=").append(item.direction).append("\n");
         }
-        sb.append("title=").append(item.title).append("\n");
-        sb.append("imageUrl=").append(item.imageUrl).append("\n");
-        sb.append("address=").append(item.address).append("\n");
-        sb.append("newAddress=").append(item.newAddress).append("\n");
-        sb.append("zipcode=").append(item.zipcode).append("\n");
-        sb.append("phone=").append(item.phone).append("\n");
-        sb.append("category=").append(item.category).append("\n");
-        sb.append("longitude=").append(item.longitude).append("\n");
-        sb.append("latitude=").append(item.latitude).append("\n");
-        sb.append("distance=").append(item.distance).append("\n");
-        sb.append("direction=").append(item.direction).append("\n");
         Toast.makeText(this, sb.toString(), Toast.LENGTH_SHORT).show();
+        selectedMarker = mapPOIItem.getTag();
     }
 
     @Override
