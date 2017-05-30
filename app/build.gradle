@@ -28,10 +28,10 @@ dependencies {
     compile files('libs/libDaumMapAndroid.jar')
     compile files('libs/libDaumMapEngineApi.jar')
     compile 'com.android.support:appcompat-v7:25.2.0'
-    compile 'com.android.support.constraint:constraint-layout:1.0.1'
     compile 'com.android.support:design:25.2.0'
     compile 'com.android.support:support-vector-drawable:25.2.0'
     compile 'com.google.firebase:firebase-database:10.0.1'
+    compile 'com.koushikdutta.ion:ion:2.+'
     testCompile 'junit:junit:4.12'
 }
 

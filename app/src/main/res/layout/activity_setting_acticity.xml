@@ -7,11 +7,18 @@
     android:layout_height="match_parent"
     tools:context="com.example.yajya.oh_sorry.SettingActicity">
 
-    <ListView
-        android:id="@+id/showList"
+    <Button
         android:layout_width="match_parent"
-        android:layout_weight="9"
-        android:layout_height="0dp"></ListView>
+        android:layout_height="wrap_content"
+        android:text="서비스 시작"
+        android:id="@+id/startBtn"
+        android:onClick="startSvc"/>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="서비스 종료"
+        android:id="@+id/endBtn"
+        android:onClick="endSvc"/>
 
     <LinearLayout
         android:layout_width="match_parent"

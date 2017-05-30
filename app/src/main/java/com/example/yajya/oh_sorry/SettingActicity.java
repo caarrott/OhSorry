@@ -25,4 +25,13 @@ public class SettingActicity extends AppCompatActivity {
         finish();
     }
 
+    public void startSvc(View view) {
+        Intent intent = new Intent(getApplicationContext(),myService.class);
+        startService(intent);
+    }
+
+    public void endSvc(View view) {
+        Intent intent = new Intent(getApplicationContext(), myService.class);
+        stopService(intent);
+    }
 }

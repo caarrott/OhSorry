@@ -6,6 +6,13 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Created by yajya on 2017-05-27.
  */
@@ -21,8 +28,10 @@ public class MyDBHandler extends SQLiteOpenHelper {
     public static final String COLUMN_END = "end";
     public static final String COLUMN_NAME = "name";
 
+    Context context;
     public MyDBHandler(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, DATABASE_NAME, factory, version);
+        this.context = context;
     }
 
     @Override
@@ -36,11 +45,94 @@ public class MyDBHandler extends SQLiteOpenHelper {
                         +COLUMN_START+" TEXT,"
                         +COLUMN_END+" TEXT );";
         db.execSQL(CREATE_TABLE);
+        String CREATE_THEATER =
+                "CREATE TABLE IF NOT EXISTS theater("
+                        +"key INTEGER PRIMARY KEY AUTOINCREMENT,"
+                        +"name TEXT,"
+                        +"lat DOUBLE,"
+                        +"lng DOUBLE,"
+                        +"UNIQUE(name)"
+                        +");";
+        db.execSQL(CREATE_THEATER);
+        String CREATE_LIBRARY =
+                "CREATE TABLE IF NOT EXISTS library("
+                        +"key INTEGER PRIMARY KEY AUTOINCREMENT,"
+                        +"name TEXT,"
+                        +"lat DOUBLE,"
+                        +"lng DOUBLE,"
+                        +"UNIQUE(name)"
+                        +");";
+        db.execSQL(CREATE_LIBRARY);
+        updateTheater();
+        updateLibrary();
     }
+    public void updateTheater(){
+        Ion.with(context)
+                .load("http://openapi.seoul.go.kr:8088/4a796644636a6f6e37324f617a4558/json/SearchCulturalFacilitiesDetailService/1/1000")
+                .asString()
+                .setCallback(new FutureCallback<String>() {
+                    @Override
+                    public void onCompleted(Exception e, String result) {
+                        try {
+                            JSONObject json = new JSONObject(result);
+                            JSONObject facilities = json.getJSONObject("SearchCulturalFacilitiesDetailService");
+                            JSONArray array = facilities.getJSONArray("row");
+                            SQLiteDatabase db = getWritableDatabase();
+                            db.delete("theater",null,null);
+                            for(int i = 0 ; i < array.length(); i++){
+                                String name = array.getJSONObject(i).getString("FAC_NAME");
+                                String lat = array.getJSONObject(i).getString("X_COORD");
+                                String lng = array.getJSONObject(i).getString("Y_COORD");
+                                ContentValues value = new ContentValues();
+                                value.put("name",name);
+                                value.put("lat",Double.parseDouble(lat));
+                                value.put("lng",Double.parseDouble(lng));
+                                db.insert("theater",null,value);
+                            }
+
+
+                        } catch (JSONException JSONe) {
+                            JSONe.printStackTrace();
+                        };
+                    }
+                });
+    }
+    public void updateLibrary(){
+        Ion.with(context)
+                .load("http://openapi.seoul.go.kr:8088/4a796644636a6f6e37324f617a4558/json/SeoulPublicLibrary/1/1000")
+                .asString()
+                .setCallback(new FutureCallback<String>() {
+                    @Override
+                    public void onCompleted(Exception e, String result) {
+                        try {
+                            JSONObject json = new JSONObject(result);
+                            JSONObject facilities = json.getJSONObject("SeoulPublicLibrary");
+                            JSONArray array = facilities.getJSONArray("row");
+                            SQLiteDatabase db = getWritableDatabase();
+                            db.delete("library",null,null);
+                            for(int i = 0 ; i < array.length(); i++){
+                                String name = array.getJSONObject(i).getString("LBRRY_NAME");
+                                String lat = array.getJSONObject(i).getString("XCNTS");
+                                String lng = array.getJSONObject(i).getString("YDNTS");
+                                ContentValues value = new ContentValues();
+                                value.put("name",name);
+                                value.put("lat",Double.parseDouble(lat));
+                                value.put("lng",Double.parseDouble(lng));
+                                db.insert("library",null,value);
+                            }
+                        } catch (JSONException JSONe) {
+                            JSONe.printStackTrace();
+                        };
+                    }
+                });
+    }
+
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS"+DATABASE_TABLE);
+        db.execSQL("DROP TABLE IF EXISTS "+DATABASE_TABLE);
+        db.execSQL("DROP TABLE IF EXISTS theater");
+        db.execSQL("DROP TABLE IF EXISTS library");
         onCreate(db);
     }
 
