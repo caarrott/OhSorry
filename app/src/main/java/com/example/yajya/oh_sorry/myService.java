@@ -166,6 +166,21 @@ public class myService extends Service {
                         }
                         cursor.moveToNext();
                     }
+
+                    String findCustomPlace = "SELECT * FROM places;";
+                    cursor=db.rawQuery(findCustomPlace, null);
+                    cursor.moveToFirst();
+                    while (!cursor.isAfterLast()){
+                        double latitude = cursor.getDouble(2);
+                        double longitude = cursor.getDouble(3);
+                        location.setLatitude(latitude);
+                        location.setLongitude(longitude);
+                        if (formerLocation.distanceTo(location) < 10) {
+                            setMute();
+                            return;
+                        }
+                        cursor.moveToNext();
+                    }
                 }
 
             }
