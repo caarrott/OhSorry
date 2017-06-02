@@ -42,8 +42,8 @@ public class MyDBHandler extends SQLiteOpenHelper {
                         +COLUMN_NAME+" TEXT,"
                         +COLUMN_LAT+" DOUBLE,"
                         +COLUMN_LNG+" DOUBLE,"
-                        +COLUMN_START+" TEXT,"
-                        +COLUMN_END+" TEXT );";
+                        +COLUMN_START+" INTEGER,"
+                        +COLUMN_END+" INTEGER );";
         db.execSQL(CREATE_TABLE);
         String CREATE_THEATER =
                 "CREATE TABLE IF NOT EXISTS theater("
@@ -142,11 +142,29 @@ public class MyDBHandler extends SQLiteOpenHelper {
         values.put(COLUMN_NAME, place.getName());
         values.put(COLUMN_LAT, place.getLat());
         values.put(COLUMN_LNG, place.getLng());
-        values.put(COLUMN_START, " ");
-        values.put(COLUMN_END, " ");
+        values.put(COLUMN_START, 0);
+        values.put(COLUMN_END, 0);
 
         SQLiteDatabase db = this.getWritableDatabase();
+
         db.insert(DATABASE_TABLE, null, values);
+        db.close();
+    }
+
+    public void updatePlace(Place place){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("markertag", place.getTag());
+        values.put("name", place.getName());
+        values.put("lat", place.getLat());
+        values.put("lng", place.getLng());
+        values.put("start", place.getStart());
+        values.put("end", place.getEnd());
+
+//        db.delete("places", "name=?", new String[]{item.getName()});
+//        db.insert("places", null, values);
+
+        db.update("places", values, "name=?", new String[]{place.getName()});
         db.close();
     }
 

@@ -9,7 +9,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.ArrayAdapter;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.koushikdutta.async.future.FutureCallback;
@@ -19,12 +19,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
     ListView listView;
     MyDBHandler dbHandler;
     Cursor cursor;
-    ArrayAdapter<String> adapter;
-    String place[];
+    MyListAdapter adapter;
+    ArrayList<Place> places;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,22 +39,47 @@ public class MainActivity extends AppCompatActivity {
             bar.hide();
         }
 
-        init();
+        try {
+            init();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
         checkFirstRun();
     }
 
-    public void init(){
+    public void init() throws ParseException {
         listView = (ListView)findViewById(R.id.showList);
         dbHandler = new MyDBHandler(getApplicationContext(), null, null, 3);
+
+//        SQLiteDatabase db = dbHandler.getWritableDatabase();
+//        db.delete("places", null, null);
+
         cursor = dbHandler.getQueryResult("select * from places");
         cursor.moveToFirst();
-        place = new String[cursor.getCount()];
-        while(!cursor.isAfterLast()){
-            place[cursor.getPosition()]=cursor.getString(1);
+        places = new ArrayList<>();
+        while (!cursor.isAfterLast()) {
+            Place place5 = new Place(cursor.getInt(0), cursor.getString(1), cursor.getDouble(2), cursor.getDouble(3), cursor.getInt(4), cursor.getInt(5));
+
+            places.add(place5);
             cursor.moveToNext();
         }
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, place);
+        adapter = new MyListAdapter(this, R.layout.row, places);
         listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                View toolbar = view.findViewById(R.id.toolbar);
+
+                // Creating the expand animation for the item
+                ExpandAnimation expandAni = new ExpandAnimation(toolbar, 500);
+
+                // Start the animation on the toolbar
+                toolbar.startAnimation(expandAni);
+            }
+        });
+
+
     }
 
     public void btnMap(View view) {

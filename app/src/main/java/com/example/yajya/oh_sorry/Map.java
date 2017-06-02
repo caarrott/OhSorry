@@ -343,8 +343,13 @@ public class Map extends AppCompatActivity implements MapView.MapViewEventListen
         } else if(mapPOIItem.getTag()>=100){
             cursor = dbHandler.getQueryResult("select * from places where markertag = "+mapPOIItem.getTag());
             cursor.moveToFirst();
-            if(!cursor.isAfterLast())
+            if(!cursor.isAfterLast()) {
                 sb.append("title=").append(cursor.getString(1)).append("\n");
+                sb.append("lat=").append(cursor.getDouble((2))).append("\n");
+                sb.append("lng=").append(cursor.getDouble((3))).append("\n");
+                sb.append("start=").append(cursor.getInt(4)).append("\n");
+                sb.append("end=").append(cursor.getInt(5)).append("\n");
+            }
         }else {
             sb.append("title=").append(item.title).append("\n");
             sb.append("imageUrl=").append(item.imageUrl).append("\n");

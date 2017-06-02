@@ -23,6 +23,9 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 /**
  * Created by JSK on 2017-05-22.
  */
@@ -82,6 +85,13 @@ public class myService extends Service {
         isMuted = true;
         AudioManager mgr = (AudioManager) getSystemService(AUDIO_SERVICE);
         mgr.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+    }
+
+    public void reSound() {
+        getSound();
+        isMuted = false;
+        AudioManager mgr = (AudioManager) getSystemService(AUDIO_SERVICE);
+        mgr.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
     }
 
     @Override
@@ -173,10 +183,36 @@ public class myService extends Service {
                     while (!cursor.isAfterLast()){
                         double latitude = cursor.getDouble(2);
                         double longitude = cursor.getDouble(3);
+                        int startTime = cursor.getInt(4);
+                        int endTime = cursor.getInt(5);
                         location.setLatitude(latitude);
                         location.setLongitude(longitude);
-                        if (formerLocation.distanceTo(location) < 10) {
-                            setMute();
+                        if (formerLocation.distanceTo(location) < 100) {
+//                            long now = System.currentTimeMillis();
+//                            int curTime = (int) now;
+                            Calendar cal = Calendar.getInstance();
+                            SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy:MM:dd-hh:mm:ss");
+                            String datetime1 = sdf1.format(cal.getTime());
+
+                            int hour = cal.get(Calendar.HOUR);
+                            int minute = cal.get(Calendar.MINUTE);
+
+                            int curTime = hour * 100 + minute;
+
+//                            int hour_c = curTime / 100;
+//                            int min_c = curTime - hour_c;
+//                            int hour_s = startTime / 100;
+//                            int min_s = startTime - hour_s;
+//                            int hour_e = endTime / 100;
+//                            int min_e = endTime - hour_e;
+
+                            if(startTime != 0 && endTime != 0) {
+                                if (curTime >= startTime && curTime <= endTime)
+                                    setMute();
+                                else
+                                    reSound();
+                            } else
+                                setMute();
                             return;
                         }
                         cursor.moveToNext();

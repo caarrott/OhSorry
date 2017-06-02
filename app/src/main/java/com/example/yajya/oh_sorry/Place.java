@@ -1,8 +1,5 @@
 package com.example.yajya.oh_sorry;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 /**
  * Created by yajya on 2017-05-26.
  */
@@ -11,15 +8,15 @@ public class Place {
     int mTag;
     String mName;
     double mLat, mLng;
-    SimpleDateFormat mStart, mEnd;
+    int mStart, mEnd;
 
-    public Place(int tag, String name, double lat, double lng, SimpleDateFormat simpleDateFormat1, SimpleDateFormat simpleDateFormat2) {
+    public Place(int tag, String name, double lat, double lng, int date1, int date2) {
         mTag = tag;
         mName = name;
         mLat = lat;
         mLng = lng;
-        mStart = simpleDateFormat1;
-        mEnd = simpleDateFormat2;
+        mStart = date1;
+        mEnd = date2;
     }
 
     public Place(int tag, String name, double lat, double lng){
@@ -27,8 +24,8 @@ public class Place {
         mName = name;
         mLat = lat;
         mLng = lng;
-        mStart = null;
-        mEnd = null;
+        mStart = 0;
+        mEnd = 0;
     }
 
     public int getTag() { return mTag; }
@@ -45,15 +42,7 @@ public class Place {
         return mLng;
     }
 
-    public String getStart() {
-        Date from = new Date();
-        String _mStart = mStart.format(from);
-        return _mStart;
-    }
+    public int getStart() { return mStart; }
 
-    public String getEnd() {
-        Date from = new Date();
-        String _mEnd = mEnd.format(from);
-        return _mEnd;
-    }
+    public int getEnd() { return mEnd; }
 }
