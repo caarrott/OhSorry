@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void init() throws ParseException {
         listView = (ListView)findViewById(R.id.showList);
-        dbHandler = new MyDBHandler(getApplicationContext(), null, null, 3);
+        dbHandler = new MyDBHandler(getApplicationContext(), null, null, 4);
 
 //        SQLiteDatabase db = dbHandler.getWritableDatabase();
 //        db.delete("places", null, null);

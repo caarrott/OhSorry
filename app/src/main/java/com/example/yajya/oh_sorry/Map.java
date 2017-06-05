@@ -78,7 +78,7 @@ public class Map extends AppCompatActivity implements MapView.MapViewEventListen
     }
 
     public void initDB(){
-        dbHandler = new MyDBHandler(getApplicationContext(), null, null, 3);
+        dbHandler = new MyDBHandler(getApplicationContext(), null, null, 4);
         cursor = dbHandler.getQueryResult("select * from places");
     }
 

@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -50,6 +51,8 @@ public class myService extends Service {
     Location formerLocation;
 
     static final int NOTIFICATION_ID = 931222;
+
+    SharedPreferences settings;
 
     @Nullable
     @Override
@@ -118,10 +121,11 @@ public class myService extends Service {
     }
 
     public void initDB() {
-        dbHandler = new MyDBHandler(getApplicationContext(), null, null, 3);
+        dbHandler = new MyDBHandler(getApplicationContext(), null, null, 4);
     }
 
     public void init() {
+        settings = getSharedPreferences("setting",0);
         isRunning = true;
         isMuted = false;
         gpsX = "gpsX";
@@ -145,40 +149,44 @@ public class myService extends Service {
                     formerLocation.setLongitude(location.getLongitude());
                     formerLocation.setLatitude(location.getLatitude());
                     SQLiteDatabase db = dbHandler.getReadableDatabase();
-                    String findTheater = "SELECT * FROM theater;";
-                    Cursor cursor = db.rawQuery(findTheater, null);
-                    cursor.moveToFirst();
-                    int colCount = cursor.getColumnCount();
-                    int rowCount = cursor.getCount();
+                    if(settings.getBoolean("useTheater",true)) {
+                        String findTheater = "SELECT * FROM theater;";
+                        Cursor cursor = db.rawQuery(findTheater, null);
+                        cursor.moveToFirst();
+                        int colCount = cursor.getColumnCount();
+                        int rowCount = cursor.getCount();
 
-                    while (!cursor.isAfterLast()) {
-                        double latitude = cursor.getDouble(2);
-                        double longitude = cursor.getDouble(3);
-                        location.setLatitude(latitude);
-                        location.setLongitude(longitude);
-                        if (formerLocation.distanceTo(location) < 10) {
-                            setMute();
-                            return;
+                        while (!cursor.isAfterLast()) {
+                            double latitude = cursor.getDouble(2);
+                            double longitude = cursor.getDouble(3);
+                            location.setLatitude(latitude);
+                            location.setLongitude(longitude);
+                            if (formerLocation.distanceTo(location) < 10) {
+                                setMute();
+                                return;
+                            }
+                            cursor.moveToNext();
                         }
-                        cursor.moveToNext();
-                    }
-                    String findLibrary = "SELECT * FROM library;";
-                    cursor = db.rawQuery(findLibrary, null);
-                    cursor.moveToFirst();
-                    while (!cursor.isAfterLast()) {
-                        double latitude = cursor.getDouble(2);
-                        double longitude = cursor.getDouble(3);
-                        location.setLatitude(latitude);
-                        location.setLongitude(longitude);
-                        if (formerLocation.distanceTo(location) < 10) {
-                            setMute();
-                            return;
-                        }
-                        cursor.moveToNext();
                     }
 
+                    if(settings.getBoolean("useLibrary",true)) {
+                        String findLibrary = "SELECT * FROM library;";
+                        Cursor cursor = db.rawQuery(findLibrary, null);
+                        cursor.moveToFirst();
+                        while (!cursor.isAfterLast()) {
+                            double latitude = cursor.getDouble(2);
+                            double longitude = cursor.getDouble(3);
+                            location.setLatitude(latitude);
+                            location.setLongitude(longitude);
+                            if (formerLocation.distanceTo(location) < 10) {
+                                setMute();
+                                return;
+                            }
+                            cursor.moveToNext();
+                        }
+                    }
                     String findCustomPlace = "SELECT * FROM places;";
-                    cursor=db.rawQuery(findCustomPlace, null);
+                    Cursor cursor=db.rawQuery(findCustomPlace, null);
                     cursor.moveToFirst();
                     while (!cursor.isAfterLast()){
                         double latitude = cursor.getDouble(2);
@@ -188,8 +196,6 @@ public class myService extends Service {
                         location.setLatitude(latitude);
                         location.setLongitude(longitude);
                         if (formerLocation.distanceTo(location) < 100) {
-//                            long now = System.currentTimeMillis();
-//                            int curTime = (int) now;
                             Calendar cal = Calendar.getInstance();
                             SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy:MM:dd-hh:mm:ss");
                             String datetime1 = sdf1.format(cal.getTime());
@@ -198,13 +204,6 @@ public class myService extends Service {
                             int minute = cal.get(Calendar.MINUTE);
 
                             int curTime = hour * 100 + minute;
-
-//                            int hour_c = curTime / 100;
-//                            int min_c = curTime - hour_c;
-//                            int hour_s = startTime / 100;
-//                            int min_s = startTime - hour_s;
-//                            int hour_e = endTime / 100;
-//                            int min_e = endTime - hour_e;
 
                             if(startTime != 0 && endTime != 0) {
                                 if (curTime >= startTime && curTime <= endTime)
