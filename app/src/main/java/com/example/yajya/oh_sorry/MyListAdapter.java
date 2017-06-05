@@ -56,6 +56,10 @@ public class MyListAdapter extends ArrayAdapter {
             final TimePicker startTime = (TimePicker)v.findViewById(R.id.startTime);
             final TimePicker endTime = (TimePicker)v.findViewById(R.id.endTime);
 
+            startTime.setEnabled(false);
+            endTime.setEnabled(false);
+            checkBox.setChecked(true);
+
             if(item.getStart() == 0){
 
             } else {
@@ -67,10 +71,14 @@ public class MyListAdapter extends ArrayAdapter {
                     endTime.setEnabled(false);
                     checkBox.setChecked(true);
                 } else {
+                    startTime.setEnabled(true);
+                    endTime.setEnabled(true);
+                    checkBox.setChecked(false);
+
                     int hourStart = dateStart / 100;
-                    int minStart = dateStart - hourStart;
+                    int minStart = dateStart % 100;
                     int hourEnd = dateEnd / 100;
-                    int minEnd = dateEnd - hourEnd;
+                    int minEnd = dateEnd % 100;
 
                     if (android.os.Build.VERSION.SDK_INT >= 23) { // 안드로이드 sdk 버전에 따라 맞는 시간 get 함수 사용
                         startTime.setHour(hourStart);
@@ -80,7 +88,7 @@ public class MyListAdapter extends ArrayAdapter {
                         endTime.setMinute(minEnd);
                     } else {
                         startTime.setCurrentHour(hourStart);
-                        startTime.setCurrentMinute(hourEnd);
+                        startTime.setCurrentMinute(minStart);
 
                         endTime.setCurrentHour(hourEnd);
                         endTime.setCurrentMinute(minEnd);

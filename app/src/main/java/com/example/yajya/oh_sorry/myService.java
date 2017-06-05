@@ -205,7 +205,7 @@ public class myService extends Service {
 
                             int curTime = hour * 100 + minute;
 
-                            if(startTime != 0 && endTime != 0) {
+                            if(startTime > 0 && endTime > 0) {
                                 if (curTime >= startTime && curTime <= endTime)
                                     setMute();
                                 else
