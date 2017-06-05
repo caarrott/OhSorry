@@ -301,8 +301,9 @@ public class myService extends Service {
         super.onDestroy();
         try{
             lm.removeUpdates(LocaListen);
-        }catch (SecurityException e){
+        }catch (SecurityException e) {
             e.printStackTrace();
         }
+        unregisterReceiver(broadRcvr);
     }
 }
