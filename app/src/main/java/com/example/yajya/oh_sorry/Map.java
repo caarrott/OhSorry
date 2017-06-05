@@ -201,7 +201,7 @@ public class Map extends AppCompatActivity implements MapView.MapViewEventListen
         final int count = temp;
 
         cursor.moveToFirst();
-        if(selectedMarker>=-1) {
+         if(selectedMarker>=-1) {
             AlertDialog.Builder alert = new AlertDialog.Builder(this);
             alert.setMessage("Add?").setCancelable(false).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                 @Override
@@ -385,7 +385,7 @@ public class Map extends AppCompatActivity implements MapView.MapViewEventListen
 
     @Override
     public void onMapViewSingleTapped(MapView mapView, MapPoint mapPoint) {
-
+        selectedMarker = -2;
     }
 
     @Override
