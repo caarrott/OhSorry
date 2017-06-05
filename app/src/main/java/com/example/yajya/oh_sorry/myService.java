@@ -305,5 +305,6 @@ public class myService extends Service {
             e.printStackTrace();
         }
         unregisterReceiver(broadRcvr);
+        reSound();
     }
 }
