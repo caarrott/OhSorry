@@ -311,6 +311,7 @@ public class Map extends AppCompatActivity implements MapView.MapViewEventListen
         MapPOIItem[] poiItems = mapView.getPOIItems();
         if (poiItems.length > 0) {
             mapView.selectPOIItem(poiItems[0], false);
+            selectedMarker = poiItems[0].getTag();
         }
     }
 
@@ -363,7 +364,7 @@ public class Map extends AppCompatActivity implements MapView.MapViewEventListen
             sb.append("distance=").append(item.distance).append("\n");
             sb.append("direction=").append(item.direction).append("\n");
         }
-        Toast.makeText(this, sb.toString(), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, sb.toString(), Toast.LENGTH_SHORT).show();
         selectedMarker = mapPOIItem.getTag();
     }
 
@@ -414,7 +415,7 @@ public class Map extends AppCompatActivity implements MapView.MapViewEventListen
 
     @Override
     public void onPOIItemSelected(MapView mapView, MapPOIItem mapPOIItem) {
-
+        selectedMarker = mapPOIItem.getTag();
     }
 
     @Override

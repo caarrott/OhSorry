@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
                 View toolbar = view.findViewById(R.id.toolbar);
 
                 // Creating the expand animation for the item
-                ExpandAnimation expandAni = new ExpandAnimation(toolbar, 500);
+                ExpandAnimation expandAni = new ExpandAnimation(toolbar, 100);
 
                 // Start the animation on the toolbar
                 toolbar.startAnimation(expandAni);

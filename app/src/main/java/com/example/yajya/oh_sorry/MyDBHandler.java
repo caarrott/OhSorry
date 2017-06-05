@@ -152,19 +152,19 @@ public class MyDBHandler extends SQLiteOpenHelper {
     }
 
     public void updatePlace(Place place){
-        SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put("markertag", place.getTag());
-        values.put("name", place.getName());
-        values.put("lat", place.getLat());
-        values.put("lng", place.getLng());
-        values.put("start", place.getStart());
-        values.put("end", place.getEnd());
+        values.put(COLUMN_MAKERTAG, place.getTag());
+        values.put(COLUMN_NAME, place.getName());
+        values.put(COLUMN_LAT, place.getLat());
+        values.put(COLUMN_LNG, place.getLng());
+        values.put(COLUMN_START, place.getStart());
+        values.put(COLUMN_END, place.getEnd());
 
+        SQLiteDatabase db = this.getWritableDatabase();
 //        db.delete("places", "name=?", new String[]{item.getName()});
 //        db.insert("places", null, values);
 
-        db.update("places", values, "name=?", new String[]{place.getName()});
+        db.update(DATABASE_TABLE, values, "name=?", new String[]{place.getName()});
         db.close();
     }
 
