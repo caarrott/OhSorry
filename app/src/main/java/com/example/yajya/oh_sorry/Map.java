@@ -44,11 +44,21 @@ public class Map extends AppCompatActivity implements MapView.MapViewEventListen
     static final String API_KEY = "072a8054349bc3dbbb29a2201c04a678";
     net.daum.mf.map.api.MapView mapView;
     LocationManager locationManager;
+    LocationListener locationListener;
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        locationManager.removeUpdates(locationListener);
+    }
+
     HashMap<Integer, Item> mTagItemMap = new HashMap<Integer, Item>();
     double lat, lng;
     int selectedMarker;
     MyDBHandler dbHandler;
     Cursor cursor;
+
     Switch aSwitch;
 
     @Override
@@ -97,7 +107,7 @@ public class Map extends AppCompatActivity implements MapView.MapViewEventListen
     public void loadGPS() {
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
-        LocationListener locationListener = new LocationListener() {
+        locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
                 lat = location.getLatitude();
@@ -201,7 +211,7 @@ public class Map extends AppCompatActivity implements MapView.MapViewEventListen
         final int count = temp;
 
         cursor.moveToFirst();
-         if(selectedMarker>=-1) {
+         if(selectedMarker>-1) {
             AlertDialog.Builder alert = new AlertDialog.Builder(this);
             alert.setMessage("Add?").setCancelable(false).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                 @Override
@@ -221,7 +231,28 @@ public class Map extends AppCompatActivity implements MapView.MapViewEventListen
 
             AlertDialog dialog = alert.create();
             dialog.show();
-        } else {
+         } else if (selectedMarker == -1) {
+             final EditText editText = new EditText(this);
+
+             AlertDialog.Builder builder = new AlertDialog.Builder(this);
+             builder.setMessage("Place name : ")
+                     .setView(editText)
+                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                         @Override
+                         public void onClick(DialogInterface dialog, int which) {
+                             Place place = new Place(count, editText.getText().toString(), lat, lng);
+
+                             dbHandler.addPlace(place);
+                             showCustomPlace();
+                         }
+                     }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                 @Override
+                 public void onClick(DialogInterface dialog, int which) {
+                     dialog.cancel();
+                 }
+             });
+             builder.show();
+         } else {
             Toast.makeText(getApplicationContext(), "Search & Select Marker Please", Toast.LENGTH_SHORT).show();
         }
     }
