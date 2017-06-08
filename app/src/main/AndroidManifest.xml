@@ -12,9 +12,9 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".Map" />
@@ -30,7 +30,9 @@
         <activity android:name=".Join" />
         <activity android:name=".SettingActicity" />
 
-        <service android:name=".myService" />
+        <service
+            android:name=".myService"
+            />
         <receiver android:name=".BootReciever"
             android:enabled="true"
             android:exported="false">

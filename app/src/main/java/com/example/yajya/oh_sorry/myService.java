@@ -18,6 +18,7 @@ import android.location.LocationManager;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
@@ -86,6 +87,8 @@ public class myService extends Service {
     public void setMute() {
         getSound();
         isMuted = true;
+        Vibrator vibe = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+        vibe.vibrate(1000);
         AudioManager mgr = (AudioManager) getSystemService(AUDIO_SERVICE);
         mgr.setRingerMode(AudioManager.RINGER_MODE_SILENT);
     }
@@ -93,6 +96,8 @@ public class myService extends Service {
     public void reSound() {
         getSound();
         isMuted = false;
+        Vibrator vibe = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+        vibe.vibrate(1000);
         AudioManager mgr = (AudioManager) getSystemService(AUDIO_SERVICE);
         mgr.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
     }
@@ -260,14 +265,17 @@ public class myService extends Service {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (isRunning) {
+                    reSound();
                     contentView.setTextViewText(R.id.svcStatus, "서비스가 중단되었습니다.");
                     isRunning = false;
+                    contentView.setImageViewResource(R.id.statusBtn, R.drawable.on);
                     mCompatBuilder.setContent(contentView);
                     notifier = mCompatBuilder.build();
                     startForeground(NOTIFICATION_ID, notifier);
                     lm.removeUpdates(LocaListen);
                 } else {
                     contentView.setTextViewText(R.id.svcStatus, "서비스가 실행중입니다.");
+                    contentView.setImageViewResource(R.id.statusBtn, R.drawable.onoff);
                     isRunning = true;
                     mCompatBuilder.setContent(contentView);
                     notifier = mCompatBuilder.build();
