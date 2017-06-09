@@ -1,6 +1,7 @@
 package com.example.yajya.oh_sorry;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Build;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
@@ -36,6 +37,19 @@ public class MyListAdapter extends ArrayAdapter {
         this.places = objects;
     }
 
+    public void updateItem(){
+        places.clear();
+        MyDBHandler dbHandler = new MyDBHandler(context, null, null, 4);
+
+        Cursor cursor = dbHandler.getQueryResult("select * from places");
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            Place place5 = new Place(cursor.getInt(0), cursor.getString(1), cursor.getDouble(2), cursor.getDouble(3), cursor.getInt(4), cursor.getInt(5));
+
+            places.add(place5);
+            cursor.moveToNext();
+        }
+    }
     @RequiresApi(api = Build.VERSION_CODES.M)
     @NonNull
     @Override
@@ -150,6 +164,7 @@ public class MyListAdapter extends ArrayAdapter {
                 public void onClick(View v) {
                     MyDBHandler dbHandler = new MyDBHandler(getContext(), null, null, 4);
                     dbHandler.deletePlace(item.getTag());
+                    updateItem();
                     notifyDataSetChanged();
                 }
             });
