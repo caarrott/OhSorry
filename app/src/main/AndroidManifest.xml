@@ -19,7 +19,6 @@
         android:theme="@style/AppTheme">
         <activity android:name=".Map" />
         <activity android:name=".FirstActivity"></activity>
-        <activity android:name=".LogIn" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,7 +26,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Join" />
         <activity android:name=".SettingActicity" />
 
         <service
