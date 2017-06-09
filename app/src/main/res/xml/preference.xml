@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="useTheater"
+        android:summaryOn = "공연장 정보를 사용합니다"
+        android:summaryOff="공연장 정보를 사용하지 않습니다"
+        android:title = "공연장 정보 사용"/>
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="useLibrary"
+        android:summaryOn = "도서관 정보를 사용합니다"
+        android:summaryOff="도서관 정보를 사용하지 않습니다"
+        android:title = "도서관 정보 사용"/>
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="useAutoStart"
+        android:summaryOn = "기기 구동 시 자동으로 시작합니다"
+        android:summaryOff="자동 시작 기능을 사용하지 않습니다"
+        android:title = "기기 구동 시 자동으로 시작"/>
+    <ListPreference
+        android:defaultValue="0"
+        android:entries="@array/battery"
+        android:entryValues="@array/battery_values"
+        android:key="battery"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="배터리 효율 관리"
+        />
+    <ListPreference
+        android:defaultValue="20"
+        android:entries="@array/range"
+        android:entryValues="@array/range_values"
+        android:key="range"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="효과 범위 관리"
+        />
+</PreferenceScreen>

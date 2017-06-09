@@ -19,6 +19,7 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Vibrator;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
@@ -54,6 +55,9 @@ public class myService extends Service {
     static final int NOTIFICATION_ID = 931222;
 
     SharedPreferences settings;
+
+    int range;
+    int interval;
 
     @Nullable
     @Override
@@ -99,7 +103,7 @@ public class myService extends Service {
         Vibrator vibe = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
         vibe.vibrate(1000);
         AudioManager mgr = (AudioManager) getSystemService(AUDIO_SERVICE);
-        mgr.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+        mgr.setRingerMode(audioState.getRingerMode());
     }
 
     @Override
@@ -113,7 +117,7 @@ public class myService extends Service {
             }
             formerLocation = location;
 
-            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 0, LocaListen);
+            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, interval, 0, LocaListen);
         } catch (SecurityException e) {
             e.printStackTrace();
             //접근권한 미 설정시 실행될 상황
@@ -130,7 +134,51 @@ public class myService extends Service {
     }
 
     public void init() {
-        settings = getSharedPreferences("setting",0);
+        settings = PreferenceManager.getDefaultSharedPreferences(this);
+        settings.registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                switch(key){
+                    case "battery":
+                        interval = Integer.parseInt(sharedPreferences.getString("battery","0"));
+                        switch(interval){
+                            case 0:
+                                interval = 30000;
+                                break;
+                            case 1:
+                                interval = 60000;
+                                break;
+                            case 2:
+                                interval = 120000;
+                                break;
+                        }
+                        lm.removeUpdates(LocaListen);
+                        try {
+                            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, interval, 0, LocaListen);
+                        }
+                        catch(SecurityException e){
+                            e.printStackTrace();
+                        }
+                        break;
+                    case "range":
+                        range = Integer.parseInt(sharedPreferences.getString("range","20"));
+                        break;
+                }
+            }
+        });
+        interval = Integer.parseInt(settings.getString("battery","0"));
+        switch(interval){
+            case 0:
+                interval = 30000;
+                break;
+            case 1:
+                interval = 60000;
+                break;
+            case 2:
+                interval = 120000;
+                break;
+        }
+        range = Integer.parseInt(settings.getString("range","20"));
         isRunning = true;
         isMuted = false;
         gpsX = "gpsX";
@@ -166,7 +214,7 @@ public class myService extends Service {
                             double longitude = cursor.getDouble(3);
                             location.setLatitude(latitude);
                             location.setLongitude(longitude);
-                            if (formerLocation.distanceTo(location) < 10) {
+                            if (formerLocation.distanceTo(location) < range) {
                                 setMute();
                                 return;
                             }
@@ -183,7 +231,7 @@ public class myService extends Service {
                             double longitude = cursor.getDouble(3);
                             location.setLatitude(latitude);
                             location.setLongitude(longitude);
-                            if (formerLocation.distanceTo(location) < 10) {
+                            if (formerLocation.distanceTo(location) < range) {
                                 setMute();
                                 return;
                             }
@@ -200,7 +248,7 @@ public class myService extends Service {
                         int endTime = cursor.getInt(5);
                         location.setLatitude(latitude);
                         location.setLongitude(longitude);
-                        if (formerLocation.distanceTo(location) < 100) {
+                        if (formerLocation.distanceTo(location) < range) {
                             Calendar cal = Calendar.getInstance();
                             SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy:MM:dd-hh:mm:ss");
                             String datetime1 = sdf1.format(cal.getTime());
@@ -283,7 +331,7 @@ public class myService extends Service {
                     if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         return;
                     }
-                    lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 0, LocaListen);
+                    lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, interval, 0, LocaListen);
                 }
             }
         };

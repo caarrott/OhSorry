@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="battery">
+        <item>성능 집중</item>
+        <item>균형</item>
+        <item>배터리 절약</item>
+    </string-array>
+    <string-array name="battery_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string-array name="range">
+        <item>100m</item>
+        <item>50m</item>
+        <item>20m</item>
+    </string-array>
+    <string-array name="range_values">
+        <item>100</item>
+        <item>50</item>
+        <item>20</item>
+    </string-array>
+</resources>

@@ -36,7 +36,8 @@
             android:text="검색" />
     </LinearLayout>
 
-    <android.support.design.widget.FloatingActionButton
+    <ImageButton
+        android:contentDescription="현재 위치로 이동"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:backgroundTint="#0077FF"
@@ -52,7 +53,8 @@
         android:layout_below="@+id/linearLayout"
         android:layout_alignEnd="@+id/linearLayout" />
 
-    <android.support.design.widget.FloatingActionButton
+    <ImageButton
+        android:contentDescription="현재 위치를 추가합니다"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="right"
