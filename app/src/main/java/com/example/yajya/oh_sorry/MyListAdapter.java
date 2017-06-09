@@ -144,6 +144,15 @@ public class MyListAdapter extends ArrayAdapter {
                 }
             });
 
+            Button btn2 = (Button)v.findViewById(R.id.btnDelete);
+            btn2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    MyDBHandler dbHandler = new MyDBHandler(getContext(), null, null, 4);
+                    dbHandler.deletePlace(item.getTag());
+                    notifyDataSetChanged();
+                }
+            });
         }
 
         return v;

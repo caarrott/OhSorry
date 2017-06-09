@@ -168,6 +168,12 @@ public class MyDBHandler extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void deletePlace(int tag) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(DATABASE_TABLE, "markertag=?", new String[]{String.valueOf(tag)});
+        db.close();
+    }
+
     public Cursor getQueryResult(String str) {
         SQLiteDatabase db = this.getWritableDatabase();
 
