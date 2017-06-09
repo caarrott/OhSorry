@@ -4,34 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     tools:context="com.example.yajya.oh_sorry.SettingActicity">
-    <!--
-    <CheckedTextView
-        android:id="@+id/checkTheater"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:checkMark="@android:drawable/checkbox_on_background"
-        android:checked="true"
-        android:text="영화관 정보 사용"
-        android:textSize="20sp" />
-    <CheckedTextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:checked="true"
-        android:checkMark="@android:drawable/checkbox_on_background"
-        android:textSize="20sp"
-        android:text = "도서관 정보 사용"
-        android:id="@+id/checkLibrary"/>
-    <CheckedTextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:checked="true"
-        android:checkMark="@android:drawable/checkbox_on_background"
-        android:textSize="20sp"
-        android:text="기기 구동 시 자동 시작"
-        android:id="@+id/checkAutoStart"/>
-        -->
+
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="wrap_content"
@@ -40,7 +15,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
+        android:gravity="bottom"
         android:orientation="vertical">
         <Button
             android:layout_width="match_parent"
